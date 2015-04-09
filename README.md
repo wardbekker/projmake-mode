@@ -160,3 +160,48 @@ one buffer per project) with:
 This will allow the output from the lastest build to be always
 available in a buffer. However, it does not bring that buffer to the
 front.
+
+Changing the Error Parse Engine
+--------------------------------
+
+Projmake-mode supports both multi-line and single-line error output
+parsing. The single line error parser is the default and should
+provide the ability to parse any of the common error output types. The
+only multi-line parse engine available is designed for the Ocaml
+language compiler. It may work for other compilers as well. You can
+use it by adding a :parse-engine line to your `projmake` file. An
+example `projmake` file with the Ocaml parse engine enabled follows.
+
+    (projmake
+      :name  "Voteraise"
+      :shell "build-support/bin/remote-build"
+      :parse-engine (projmake-ocaml-parse-engine-make))
+
+You can also write your own parse engine for error output that is
+currently not supported. Its quite simple. You can use the Ocaml parse
+engine and the default parse engines as examples. If you do this
+please consider contributing it back so that others may benefit.
+
+Fixing Filenames
+----------------
+
+Sometimes the file path that the compiler outputs does not map
+directly to the file path of the source file. This happens when you
+are automatically building on a remote box or in a docker image,
+etc. Projmake mode provides a way to fix that, by specifying a
+function in your `.projmake` file to do conversion in the
+`file-name-rectifier` property.
+
+    (projmake
+     :name  "Voteraise"
+     :shell "build-support/bin/remote-build libs test run-dev"
+     :parse-engine (projmake-ocaml-parse-engine-make)
+     :file-name-rectifier (lambda (filename)
+                           (mapconcat 'identity
+                               (cdr (split-string filename "/")) "/")))
+
+The above project builds on a remote box and the output has an extra
+directory in the name. The `file-name-rectifier` simply removes that
+name to make the file path relative to the project on the local box.
+You should not have to do this the vast majority of the time. However,
+when you do its nice to have the option to fix it.

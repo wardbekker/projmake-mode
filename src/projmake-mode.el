@@ -383,10 +383,12 @@ It's flymake process filter."
   (setf (projmake-build-state-exitcode build-state) exitcode)
   (projmake-log/error "exit code %d" exitcode)
   (projmake-banner/show build-state)
-  (when (= 0 exitcode)
-    (let ((project (projmake-build-state-project build-state)))
-      (projmake-elmm/remove-project-list-buffer build-state)
-      (projmake-mode/erase-build-buffer project)))
+  
+  ;; never remove the error-list buffer
+  ;;(when (= 0 exitcode)
+  ;;  (let ((project (projmake-build-state-project build-state)))
+  ;;    (projmake-elmm/remove-project-list-buffer build-state)
+  ;;    (projmake-mode/erase-build-buffer project)))
 
   (projmake-log/info "%s: %d error(s), %d warning(s)"
                      (buffer-name)
